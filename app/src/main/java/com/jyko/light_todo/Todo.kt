@@ -1,4 +1,4 @@
 package com.jyko.light_todo
 
 
-data class Todo(val text:String, var isDone:Boolean)
+data class Todo(val text:String, var isDone:Boolean = false)

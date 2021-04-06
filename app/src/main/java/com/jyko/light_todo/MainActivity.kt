@@ -26,12 +26,17 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        data.add(Todo("test1",false))
-        data.add(Todo("test2",false))
+        data.add(Todo("test1"))
+        data.add(Todo("test2"))
 
         // 리사이클러뷰 객체 지정
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = TodoAdapter(data)
+
+    }
+
+    private fun addTodo(){
+        val todo = Todo(binding.edtiText.text.toString())
 
 
     }

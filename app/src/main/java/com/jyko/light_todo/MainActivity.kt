@@ -33,10 +33,19 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = TodoAdapter(data)
 
+        //추가버튼 이벤트
+        binding.addButton.setOnClickListener {
+            addTodo()
+        }
     }
 
+    // 할일 추가 함수
     private fun addTodo(){
         val todo = Todo(binding.edtiText.text.toString())
+        data.add(todo)
+
+        // 데이터 입력후 리사이클러뷰에 데이터 변경을 알려줌.
+        binding.recyclerView.adapter?.notifyDataSetChanged()
 
 
     }

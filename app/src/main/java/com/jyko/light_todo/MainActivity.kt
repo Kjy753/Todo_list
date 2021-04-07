@@ -1,5 +1,7 @@
 package com.jyko.light_todo
 
+import android.graphics.Paint
+import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -27,15 +29,20 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
         data.add(Todo("test1"))
-        data.add(Todo("test2"))
+        data.add(Todo("test2",true))
 
-        // 리사이클러뷰 객체 지정
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = TodoAdapter(data,
-            onClickDeleteIcon = {
-                deleteTodo(it)
-            }
+        // 리사이클러뷰 객체 지정 apply를 통해 중복되는 부분 제거
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = TodoAdapter(data,
+                onClickDeleteIcon = {
+                    deleteTodo(it)
+                },
+                onClickItem = {
+                    toggleTodo(it)
+                }
             )
+        }
 
         //추가버튼 이벤트
         binding.addButton.setOnClickListener {
@@ -60,12 +67,18 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter?.notifyDataSetChanged()
 
     }
+
+    private fun toggleTodo(todo :Todo){
+        todo.isDone = !todo.isDone
+        binding.recyclerView.adapter?.notifyDataSetChanged()
+    }
 }
 
 
 class TodoAdapter(
     private val dataSet: List<Todo>,
-    val onClickDeleteIcon :(todo : Todo) -> Unit
+    val onClickDeleteIcon :(todo : Todo) -> Unit,
+    val onClickItem :(todo : Todo) -> Unit
 ) :
     RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
 
@@ -85,11 +98,33 @@ class TodoAdapter(
 
 
     override fun onBindViewHolder(viewHolder: TodoViewHolder, position: Int) {
+
+        // todo라는 이름의 포지션 선언
         val todo = dataSet[position]
 
+        // 객체의 text를 itemlist의 todoText에 할당
         viewHolder.binding.todoText.text = todo.text
+
+        // 객체의 delteIcon 함수를 invoke를 이용해 실행
         viewHolder.binding.deleteImageView.setOnClickListener {
             onClickDeleteIcon.invoke(todo)
+        }
+
+        viewHolder.binding.root.setOnClickListener {
+            onClickItem.invoke(todo)
+        }
+
+        // 할일 완료시 완료선 긋기작업
+        if(todo.isDone){
+            viewHolder.binding.todoText.apply{
+                paintFlags = viewHolder.binding.todoText.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                setTypeface(null,Typeface.ITALIC)
+            }
+        }else {
+            viewHolder.binding.todoText.apply {
+                paintFlags = 0
+                setTypeface(null,Typeface.NORMAL)
+            }
         }
 
     }

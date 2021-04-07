@@ -31,12 +31,18 @@ class MainActivity : AppCompatActivity() {
 
         // 리사이클러뷰 객체 지정
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = TodoAdapter(data)
+        binding.recyclerView.adapter = TodoAdapter(data,
+            onClickDeleteIcon = {
+                deleteTodo(it)
+            }
+            )
 
         //추가버튼 이벤트
         binding.addButton.setOnClickListener {
             addTodo()
         }
+
+
     }
 
     // 할일 추가 함수
@@ -46,13 +52,21 @@ class MainActivity : AppCompatActivity() {
 
         // 데이터 입력후 리사이클러뷰에 데이터 변경을 알려줌.
         binding.recyclerView.adapter?.notifyDataSetChanged()
+    }
 
+    // 할일 삭제 함수
+    private fun deleteTodo(todo: Todo){
+        data.remove(todo)
+        binding.recyclerView.adapter?.notifyDataSetChanged()
 
     }
 }
 
 
-class TodoAdapter(private val dataSet: List<Todo>) :
+class TodoAdapter(
+    private val dataSet: List<Todo>,
+    val onClickDeleteIcon :(todo : Todo) -> Unit
+) :
     RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
 
     class TodoViewHolder(var binding: ItemTodoBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -71,8 +85,13 @@ class TodoAdapter(private val dataSet: List<Todo>) :
 
 
     override fun onBindViewHolder(viewHolder: TodoViewHolder, position: Int) {
+        val todo = dataSet[position]
 
-        viewHolder.binding.todoText.text = dataSet[position].text
+        viewHolder.binding.todoText.text = todo.text
+        viewHolder.binding.deleteImageView.setOnClickListener {
+            onClickDeleteIcon.invoke(todo)
+        }
+
     }
 
 

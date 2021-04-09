@@ -4,6 +4,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jyko.light_todo.databinding.ActivityMainBinding
 import com.jyko.light_todo.databinding.ItemTodoBinding
+
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -49,12 +52,15 @@ class MainActivity : AppCompatActivity() {
             addTodo()
         }
 
+        // 캘린더뷰 관련 작업
+
 
     }
 
+
     // 할일 추가 함수
     private fun addTodo(){
-        val todo = Todo(binding.edtiText.text.toString())
+        val todo = Todo(binding.editText.text.toString())
         data.add(todo)
 
         // 데이터 입력후 리사이클러뷰에 데이터 변경을 알려줌.
@@ -131,5 +137,7 @@ class TodoAdapter(
 
 
     override fun getItemCount() = dataSet.size
+
+
 
 }

@@ -2,24 +2,30 @@ package com.jyko.light_todo
 
 import android.graphics.Paint
 import android.graphics.Typeface
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jyko.light_todo.databinding.ActivityMainBinding
 import com.jyko.light_todo.databinding.ItemTodoBinding
+import com.prolificinteractive.materialcalendarview.CalendarDay
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener
+import org.threeten.bp.format.DateTimeFormatter
 
-import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+
+class MainActivity : AppCompatActivity(),OnDateSelectedListener {
+
+    private val FORMATTER = DateTimeFormatter.ofPattern("EEE, d MMM yyyy")
 
     // 작업을 위한 데이터 생성
     private val data = arrayListOf<Todo>()
+
+
 
     // binding 변수 선언
     private lateinit var binding: ActivityMainBinding
@@ -31,11 +37,11 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        data.add(Todo("test1"))
-        data.add(Todo("test2",true))
+        //data.add(Todo("test1","20210412"))
+        //data.add(Todo("test2","20210412",true))
 
         // 리사이클러뷰 객체 지정 apply를 통해 중복되는 부분 제거
-        binding.recyclerView.apply {
+         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = TodoAdapter(data,
                 onClickDeleteIcon = {
@@ -53,15 +59,27 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 캘린더뷰 관련 작업
+        binding.calendarView.apply {
+            setSelectedDate(CalendarDay.today())
 
+            setOnDateChangedListener(this@MainActivity)
+
+
+
+        }
 
     }
 
 
     // 할일 추가 함수
     private fun addTodo(){
-        val todo = Todo(binding.editText.text.toString())
+        val todo = Todo(
+            binding.editText.text.toString(),
+            binding.calendarView.selectedDate.toString()
+        )
         data.add(todo)
+        Log.d("test", "add"+ todo.text+todo.input_date)
+
 
         // 데이터 입력후 리사이클러뷰에 데이터 변경을 알려줌.
         binding.recyclerView.adapter?.notifyDataSetChanged()
@@ -77,6 +95,22 @@ class MainActivity : AppCompatActivity() {
     private fun toggleTodo(todo :Todo){
         todo.isDone = !todo.isDone
         binding.recyclerView.adapter?.notifyDataSetChanged()
+    }
+
+    // 캘린더 관련
+
+
+     override fun onDateSelected(
+        widget: MaterialCalendarView,
+        date: CalendarDay,
+        selected: Boolean
+    ) {
+
+        if (selected === true) {
+            val inputDate:String = FORMATTER.format(date.date)
+            Log.v("날짜",inputDate)
+            binding.recyclerView.adapter?.notifyDataSetChanged()
+        }
     }
 }
 
@@ -111,6 +145,8 @@ class TodoAdapter(
         // 객체의 text를 itemlist의 todoText에 할당
         viewHolder.binding.todoText.text = todo.text
 
+
+
         // 객체의 delteIcon 함수를 invoke를 이용해 실행
         viewHolder.binding.deleteImageView.setOnClickListener {
             onClickDeleteIcon.invoke(todo)
@@ -137,7 +173,5 @@ class TodoAdapter(
 
 
     override fun getItemCount() = dataSet.size
-
-
 
 }

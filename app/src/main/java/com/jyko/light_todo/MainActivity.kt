@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     // binding 변수 선언
     private lateinit var binding: ActivityMainBinding
     // viewModel 선언
-    private val viewModel:MainVIewModel by viewModels()
+    private val viewmodel:MainVIewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //binding 에 레이아웃 연결
@@ -37,10 +37,10 @@ class MainActivity : AppCompatActivity() {
              adapter = TodoAdapter(
                  emptyList(),
                 onClickDeleteIcon = {
-                   // deleteTodo(it)
+                   viewmodel.deleteTodo(it)
                 },
                 onClickItem = {
-                    //toggleTodo(it)
+                    viewmodel.toggleTodo(it)
                 }
             )
         }
@@ -48,34 +48,11 @@ class MainActivity : AppCompatActivity() {
        //추가버튼 이벤트
         binding.addButton.setOnClickListener {
             val todo = Todo(binding.editText.text.toString())
-            //addTodo(todo)
+            viewmodel.addTodo(todo)
 
         }
 
     }
-
-
-//    // 할일 추가 함수
-//    private fun addTodo(){
-//        val todo = Todo(
-//            binding.editText.text.toString()
-//        )
-//        data.add(todo)
-//        binding.recyclerView.adapter?.notifyDataSetChanged()
-//
-//    }
-//
-//    // 할일 삭제 함수
-//    private fun deleteTodo(todo: Todo){
-//        data.remove(todo)
-//        binding.recyclerView.adapter?.notifyDataSetChanged()
-//
-//    }
-//
-//    private fun toggleTodo(todo :Todo){
-//        todo.isDone = !todo.isDone
-//        binding.recyclerView.adapter?.notifyDataSetChanged()
-//    }
 
 }
 

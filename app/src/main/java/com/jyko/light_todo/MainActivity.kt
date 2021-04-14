@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,20 +30,18 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-
-
         // 리사이클러뷰 객체 지정 apply를 통해 중복되는 부분 제거
          binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
              adapter = TodoAdapter(
-                 viewmodel.data,
+                 emptyList(),
                 onClickDeleteIcon = {
                    viewmodel.deleteTodo(it)
-                    binding.recyclerView.adapter?.notifyDataSetChanged()
+                    //binding.recyclerView.adapter?.notifyDataSetChanged()
                 },
                 onClickItem = {
                     viewmodel.toggleTodo(it)
-                    binding.recyclerView.adapter?.notifyDataSetChanged()
+                    //binding.recyclerView.adapter?.notifyDataSetChanged()
                 }
             )
         }
@@ -51,9 +50,18 @@ class MainActivity : AppCompatActivity() {
         binding.addButton.setOnClickListener {
             val todo = Todo(binding.editText.text.toString())
             viewmodel.addTodo(todo)
-            binding.recyclerView.adapter?.notifyDataSetChanged()
+            // setData 함수로 대체
+            //binding.recyclerView.adapter?.notifyDataSetChanged()
 
         }
+
+        // 관찰 UI 업데이트
+        // 관찰 가능한 todoLiveData.Observe
+        viewmodel.todoLiveData.observe(this, Observer {
+            //데이터의 변경이 일어날때마다 실행 ex) MainVIewModel.kt 안에 addTodo 밑에 Livedata.value = data 실행시마다
+            // 우리가 사용하는 TodoAdapter로 캐스팅.setData(List<Todo>) 를 통해 업데이트!
+            (binding.recyclerView.adapter as TodoAdapter).setData(it)
+        })
 
     }
 
@@ -61,7 +69,7 @@ class MainActivity : AppCompatActivity() {
 
 
 class TodoAdapter(
-    private val dataSet: List<Todo>,
+    private var dataSet: List<Todo>,
     val onClickDeleteIcon :(todo : Todo) -> Unit,
     val onClickItem :(todo : Todo) -> Unit
 ) : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
@@ -116,4 +124,10 @@ class TodoAdapter(
 
     override fun getItemCount() = dataSet.size
 
+    //MutableLiveData 타입의 todoLiveData 를 이용해 데이터가 변경되는것 감지해야 해서 set 함수를 어댑터에 새로 작성
+    fun setData(newData:List<Todo>){
+        dataSet = newData
+        // 데이터가 바뀔떄마다 위 메소드를 실행하면 데이터를 업데이트 해주고 notify를 여기서 해줌
+        notifyDataSetChanged()
+    }
 }

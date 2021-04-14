@@ -35,12 +35,14 @@ class MainActivity : AppCompatActivity() {
          binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
              adapter = TodoAdapter(
-                 emptyList(),
+                 viewmodel.data,
                 onClickDeleteIcon = {
                    viewmodel.deleteTodo(it)
+                    binding.recyclerView.adapter?.notifyDataSetChanged()
                 },
                 onClickItem = {
                     viewmodel.toggleTodo(it)
+                    binding.recyclerView.adapter?.notifyDataSetChanged()
                 }
             )
         }
@@ -49,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         binding.addButton.setOnClickListener {
             val todo = Todo(binding.editText.text.toString())
             viewmodel.addTodo(todo)
+            binding.recyclerView.adapter?.notifyDataSetChanged()
 
         }
 
